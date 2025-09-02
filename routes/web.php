@@ -1,38 +1,40 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TodoController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaskController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// タスク一覧ページ（ログイン済みのみ）
+Route::middleware(['auth', 'verified'])->group(function () {
 
+    // Breeze のログイン後リダイレクト先
+    Route::get('/dashboard', function () {
+        return redirect()->route('top');
+    })->name('dashboard');
 
-Route::post('/todo/store', [TodoController::class, 'store'])->name('todo.store');
+    // タスク一覧表示
+    Route::get('/top', [TaskController::class, 'index'])->name('top');
 
-Route::get('/dashboard', function () {
-    return view('top');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    // タスク新規登録
+    Route::post('/top', [TaskController::class, 'store'])->name('task.store');
 
-Route::get('/dashboard', [TodoController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    // 編集画面表示（タスク＋タグ）
+    Route::get('/task/{id}/edit', [TaskController::class, 'edit'])->name('task.edit');
 
-// 編集用ルート
-Route::get('/todo/{id}/edit', [TodoController::class, 'edit'])->name('todo.edit');
-Route::post('/todo/{id}/update', [TodoController::class, 'update'])->name('todo.update');
+    // 更新処理（タスク＋タグ）
+    Route::put('/task/{id}', [TaskController::class, 'update'])->name('task.update');
 
-// 削除用ルート
-Route::delete('/todo/{id}', [TodoController::class, 'destroy'])->name('todo.destroy');
+    // 削除処理
+    Route::delete('/task/{id}', [TaskController::class, 'destroy'])->name('task.destroy');
 
-
-
-Route::middleware('auth')->group(function () {
+    // プロフィール関連
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

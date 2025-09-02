@@ -1,27 +1,43 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>タスク編集</title>
-</head>
-<body>
-    <h1>タスク編集</h1>
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            タスク編集
+        </h2>
+    </x-slot>
 
-    <form action="{{ route('todo.update', $todo->id) }}" method="POST">
-        @csrf
-        <p>
-            <input type="text" name="task" value="{{ old('task', $todo->task) }}">
-        </p>
-        <p>
-            <input type="text" name="tag1" value="{{ old('tag1', $todo->tag1) }}">
-            <input type="text" name="tag2" value="{{ old('tag2', $todo->tag2) }}">
-            <input type="text" name="tag3" value="{{ old('tag3', $todo->tag3) }}">
-        </p>
-        <p>
-            <input type="submit" value="更新">
-        </p>
-    </form>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                <form action="{{ route('task.update', $task->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
-    <p><a href="{{ route('dashboard') }}">戻る</a></p>
-</body>
-</html>
+                    <!-- タスク名 -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">タスク名</label>
+                        <input type="text" name="name" id="name"
+                            value="{{ old('name', $task->name) }}"
+                            class="form-control" required>
+                    </div>
+
+                    <!-- タグ（テキスト入力 最大3つ固定） -->
+                    <div class="mb-3">
+                        <label class="form-label"></label>
+                        <div id="tag-inputs">
+                            @for ($i = 0; $i < 3; $i++)
+                                <input type="text" name="tags[]" 
+                                    value="{{ old('tags.' . $i, $task->tags[$i]->name ?? '') }}" 
+                                    placeholder="タグを入力"
+                                    class="form-control mb-2">
+                            @endfor
+                        </div>
+                    </div>
+
+                    <!-- 更新ボタン -->
+                    <button type="submit" class="btn btn-primary">更新</button>
+                    <a href="{{ route('top') }}" class="btn btn-secondary">キャンセル</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
