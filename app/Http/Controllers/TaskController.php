@@ -8,11 +8,30 @@ use App\Models\Tag;
 
 class TaskController extends Controller
 {
-    // 一覧表示
-    public function index()
+    // 一覧表示 + 検索
+    public function index(Request $request)
     {
-        $tasks = Task::with('tags')->get();
-        return view('top', compact('tasks'));
+        $keyword = $request->input('keyword');
+        $query = Task::with('tags')->where('status', false);
+
+        if (!empty($keyword)) {
+            $query->where('name', 'LIKE', "%{$keyword}%")
+                ->orWhereHas('tags', function ($q) use ($keyword) {
+                    $q->where('name', 'LIKE', "%{$keyword}%");
+                });
+        }
+
+        $tasks = $query->get();
+        return view('top', compact('tasks', 'keyword'));
+    }
+
+
+    // タスクの完了判定
+    public function complete($id)
+    {
+        $task = Task::findOrFail($id);
+        $task->update(['status' => true]);
+        return redirect()->route('top');
     }
 
     // 新規登録
@@ -38,7 +57,7 @@ class TaskController extends Controller
         }
         $task->tags()->sync($tagIds);
 
-        return redirect()->route('top')->with('success', 'タスクを追加しました');
+        return redirect()->route('top');
     }
 
     // 編集画面表示
@@ -75,16 +94,16 @@ class TaskController extends Controller
         }
         $task->tags()->sync($tagIds);
 
-        return redirect()->route('top')->with('success', 'タスクを更新しました');
+        return redirect()->route('top');
     }
 
     // 削除処理
     public function destroy($id)
     {
         $task = Task::findOrFail($id);
-        $task->tags()->detach(); // 中間テーブルの紐付けも削除
+        $task->tags()->detach(); 
         $task->delete();
 
-        return redirect()->route('top')->with('success', 'タスクを削除しました');
+        return redirect()->route('top');
     }
 }

@@ -21,6 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // タスク新規登録
     Route::post('/top', [TaskController::class, 'store'])->name('task.store');
+    
+    // タスク完了処理
+    Route::patch('/task/{id}/complete', [TaskController::class, 'complete'])->name('task.complete');
 
     // 編集画面表示（タスク＋タグ）
     Route::get('/task/{id}/edit', [TaskController::class, 'edit'])->name('task.edit');

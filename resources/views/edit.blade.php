@@ -20,7 +20,7 @@
                             class="form-control" required>
                     </div>
 
-                    <!-- タグ（テキスト入力 最大3つ固定） -->
+                    <!-- タグ -->
                     <div class="mb-3">
                         <label class="form-label"></label>
                         <div id="tag-inputs">
